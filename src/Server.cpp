@@ -66,9 +66,12 @@ int main(int argc, char **argv) {
         std::cout << "Received: " << message << std::endl;
 
         // You can check if it's a "ping"
-        if (message == "PING\n" || message == "PING") {
-            std::string response = "+PONG\r\n";
-            write(client_fd, response.c_str(), response.size());
+        if (message.find("PING")!=std::string::npos){
+          std::string respond ("+PONG\r\n");
+          write(client_fd,respond.c_str(),respond.size());
+        } else {
+          std::string respond ("-ERR unknown command\r\n");
+          write(client_fd, respond.c_str(), respond.size());  
         }
     }
   std::cout << "Closing connection with client...\n";

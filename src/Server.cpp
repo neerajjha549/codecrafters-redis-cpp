@@ -51,9 +51,27 @@ int main(int argc, char **argv) {
   std::cout << "Logs from your program will appear here!\n";
   int client_fd = accept(server_fd, (struct sockaddr *) &client_addr, (socklen_t *) &client_addr_len);
   std::cout << "Client connected\n";
-  std::string response = "+PONG\r\n";
-  send(client_fd, response.c_str(), response.size(), 0);
-  
+
+  char buffer[4096] = {0};
+
+   while (true) {
+        memset(buffer, 0, sizeof(buffer));
+        int bytesRead = read(client_fd, buffer, sizeof(buffer));
+        if (bytesRead <= 0) {
+            std::cout << "Client disconnected or error.\n";
+            break;
+        }
+
+        std::string message(buffer);
+        std::cout << "Received: " << message << std::endl;
+
+        // You can check if it's a "ping"
+        if (message == "ping\n" || message == "ping") {
+            std::string response = "+PONG\r\n";
+            send(client_fd, response.c_str(), response.size(), 0);
+        }
+    }
+  std::cout << "Closing connection with client...\n";
   close(client_fd);
   close(server_fd);
 

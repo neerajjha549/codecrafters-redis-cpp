@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
         std::cout << "Received: " << message << std::endl;
 
         // You can check if it's a "ping"
-        if (message == "ping\n" || message == "ping") {
+        if (message == "PING\n" || message == "PING") {
             std::string response = "+PONG\r\n";
             send(client_fd, response.c_str(), response.size(), 0);
         }

@@ -2,7 +2,9 @@
 #include "RESP.hpp"
 #include "Store.hpp"
 #include <algorithm>
+#include <cctype>
 
+// Convert string to uppercase (case-insensitive matching)
 std::string to_upper(const std::string& s) {
     std::string result = s;
     std::transform(result.begin(), result.end(), result.begin(), ::toupper);
@@ -16,25 +18,55 @@ std::string CommandHandler::handle(const std::string& raw_input) {
     }
 
     if (parts.empty()) return RESP::error("empty command");
+
     std::string cmd = to_upper(parts[0]);
 
     if (cmd == "PING") {
         return RESP::simple("PONG");
+
     } else if (cmd == "ECHO") {
-        if (parts.size() < 2) return RESP::error("wrong number of arguments for 'echo'");
+        if (parts.size() < 2)
+            return RESP::error("wrong number of arguments for 'echo'");
         return RESP::bulk(parts[1]);
+
     } else if (cmd == "SET") {
-        if (parts.size() != 3) return RESP::error("wrong number of arguments for 'set'");
-        Store::set(parts[1], parts[2]);
+        if (parts.size() < 3)
+            return RESP::error("wrong number of arguments for 'set'");
+
+        std::string key = parts[1];
+        std::string value = parts[2];
+        long long px = -1;
+
+        // Check for optional PX argument
+        if (parts.size() == 5) {
+            std::string option = to_upper(parts[3]);
+            if (option != "PX") {
+                return RESP::error("syntax error");
+            }
+            try {
+                px = std::stoll(parts[4]);
+                if (px < 0) return RESP::error("PX value must be non-negative");
+            } catch (...) {
+                return RESP::error("value is not an integer or out of range");
+            }
+        } else if (parts.size() != 3) {
+            return RESP::error("syntax error");
+        }
+
+        Store::set(key, value, px);
         return RESP::simple("OK");
+
     } else if (cmd == "GET") {
-        if (parts.size() != 2) return RESP::error("wrong number of arguments for 'get'");
+        if (parts.size() != 2)
+            return RESP::error("wrong number of arguments for 'get'");
+
         std::string value;
         if (Store::get(parts[1], value)) {
             return RESP::bulk(value);
         } else {
             return RESP::null_bulk();
         }
+
     } else {
         return RESP::error("unknown command");
     }

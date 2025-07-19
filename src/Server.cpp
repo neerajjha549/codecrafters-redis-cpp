@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
         // You can check if it's a "ping"
         if (message == "PING\n" || message == "PING") {
             std::string response = "+PONG\r\n";
-            write(client_fd, response.c_str(), response.size(), 0);
+            write(client_fd, response.c_str(), response.size());
         }
     }
   std::cout << "Closing connection with client...\n";

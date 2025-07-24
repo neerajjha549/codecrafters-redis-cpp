@@ -58,20 +58,25 @@ bool Store::lrange(const std::string& key, int start, int end, std::vector<std::
 
     if (it == db.end() || is_expired(it->second)) {
         db.erase(key);
-        return true;  // return empty list
+        return true;  // Return empty list
     }
 
     if (it->second.type != ValueType::LIST) {
-        return false;  // wrong type
+        return false;  // WRONGTYPE error
     }
 
     const auto& list = std::get<std::vector<std::string>>(it->second.data);
-    int n = list.size();
+    int len = static_cast<int>(list.size());
 
-    if (start >= n || start > end) return true;
+    // Convert negative indexes
+    if (start < 0) start = len + start;
+    if (end < 0) end = len + end;
 
-    // Clamp end to list size
-    end = std::min(end, n - 1);
+    // Clamp bounds
+    if (start < 0) start = 0;
+    if (end < 0) end = 0;
+    if (start >= len || start > end) return true;
+    if (end >= len) end = len - 1;
 
     for (int i = start; i <= end; ++i) {
         out.push_back(list[i]);
@@ -79,6 +84,7 @@ bool Store::lrange(const std::string& key, int start, int end, std::vector<std::
 
     return true;
 }
+
 
 bool Store::is_expired(const ValueEntry& entry) {
     if (!entry.has_expiry) return false;

@@ -91,9 +91,6 @@ std::string CommandHandler::handle(const std::string& raw_input) {
     try {
         start = std::stoi(parts[2]);
         end = std::stoi(parts[3]);
-        if (start < 0 || end < 0) {
-            return RESP::error("only non-negative indexes supported in this stage");
-        }
     } catch (...) {
         return RESP::error("invalid index");
     }

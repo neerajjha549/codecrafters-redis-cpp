@@ -9,4 +9,5 @@ namespace RESP {
     std::string error(const std::string& msg);
     std::string null_bulk();
     std::string integer(int n);
+    std::string array(const std::vector<std::string>& items);
 }

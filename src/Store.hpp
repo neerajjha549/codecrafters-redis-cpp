@@ -9,8 +9,8 @@ class Store {
 public:
     static void set(const std::string& key, const std::string& value, long long px_ms = -1);
     static bool get(const std::string& key, std::string& value);
-
     static int rpush(const std::string& key, const std::vector<std::string>& values);
+    static bool lrange(const std::string& key, int start, int end, std::vector<std::string>& out);
 
 private:
     enum class ValueType { STRING, LIST };

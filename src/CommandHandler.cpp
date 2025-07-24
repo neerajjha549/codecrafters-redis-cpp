@@ -81,6 +81,31 @@ std::string CommandHandler::handle(const std::string& raw_input) {
     }
 
     return RESP::integer(result);
+    } else if (cmd == "LRANGE") {
+    if (parts.size() != 4) {
+        return RESP::error("wrong number of arguments for 'lrange'");
+    }
+
+    std::string key = parts[1];
+    int start, end;
+    try {
+        start = std::stoi(parts[2]);
+        end = std::stoi(parts[3]);
+        if (start < 0 || end < 0) {
+            return RESP::error("only non-negative indexes supported in this stage");
+        }
+    } catch (...) {
+        return RESP::error("invalid index");
+    }
+
+    std::vector<std::string> result;
+    bool ok = Store::lrange(key, start, end, result);
+    if (!ok) {
+        return RESP::error("WRONGTYPE Operation against a key holding the wrong kind of value");
+    }
+
+    return RESP::array(result);
+
     } else {
         return RESP::error("unknown command");
     }

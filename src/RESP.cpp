@@ -38,6 +38,14 @@ namespace RESP {
     }
 
     std::string integer(int n) {
-    return ":" + std::to_string(n) + "\r\n";
+        return ":" + std::to_string(n) + "\r\n";
+    }
+
+    std::string array(const std::vector<std::string>& items) {
+        std::string result = "*" + std::to_string(items.size()) + "\r\n";
+        for (const auto& item : items) {
+            result += bulk(item);
+        }
+        return result;
     }
 }

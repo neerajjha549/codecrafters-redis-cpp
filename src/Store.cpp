@@ -52,6 +52,34 @@ int Store::rpush(const std::string& key, const std::vector<std::string>& values)
     return list.size();
 }
 
+bool Store::lrange(const std::string& key, int start, int end, std::vector<std::string>& out) {
+    auto it = db.find(key);
+    out.clear();
+
+    if (it == db.end() || is_expired(it->second)) {
+        db.erase(key);
+        return true;  // return empty list
+    }
+
+    if (it->second.type != ValueType::LIST) {
+        return false;  // wrong type
+    }
+
+    const auto& list = std::get<std::vector<std::string>>(it->second.data);
+    int n = list.size();
+
+    if (start >= n || start > end) return true;
+
+    // Clamp end to list size
+    end = std::min(end, n - 1);
+
+    for (int i = start; i <= end; ++i) {
+        out.push_back(list[i]);
+    }
+
+    return true;
+}
+
 bool Store::is_expired(const ValueEntry& entry) {
     if (!entry.has_expiry) return false;
     return std::chrono::steady_clock::now() > entry.expiry;

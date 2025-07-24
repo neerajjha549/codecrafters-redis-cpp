@@ -134,7 +134,7 @@ std::string CommandHandler::handle(const std::string &raw_input) {
 
     return RESP::integer(len);
   } else if (cmd == "LPOP") {
-    if (parts.size() != 3) {
+    if (parts.size() < 2 || parts.size() > 3) {
       return RESP::error("wrong number of arguments for 'lpop'");
     }
 

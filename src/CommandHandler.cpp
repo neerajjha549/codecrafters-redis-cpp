@@ -163,6 +163,30 @@ std::string CommandHandler::handle(const std::string &raw_input) {
       return removed.empty() ? RESP::null_bulk()
                              : RESP::bulk(removed[0]);  // Bulk string or null
     }
+  } else if (cmd == "BLPOP") {
+    if (parts.size() != 3)
+      return RESP::error("wrong number of arguments for 'blpop'");
+
+    std::string key = parts[1];
+    int timeout = 0;
+
+    try {
+      timeout = std::stoi(parts[2]);
+    } catch (...) {
+      return RESP::error("invalid timeout");
+    }
+
+    std::vector<std::string> popped;
+    bool ok = Store::lpop(key, 1, popped);
+
+    if (ok && !popped.empty()) {
+      return RESP::array({key, popped[0]});
+    } else if (!ok) {
+      return RESP::error(
+          "WRONGTYPE Operation against a key holding the wrong kind of value");
+    } else {
+      return "__BLOCK__";  // special signal to server
+    }
   } else {
     return RESP::error("unknown command");
   }

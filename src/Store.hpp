@@ -12,6 +12,8 @@ public:
     static int rpush(const std::string& key, const std::vector<std::string>& values);
     static int lpush(const std::string& key, const std::vector<std::string>& values);
     static bool lrange(const std::string& key, int start, int end, std::vector<std::string>& out);
+    static int llen(const std::string& key, bool& valid_type);
+
 
 private:
     enum class ValueType { STRING, LIST };

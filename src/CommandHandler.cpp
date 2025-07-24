@@ -117,6 +117,22 @@ std::string CommandHandler::handle(const std::string& raw_input) {
         }
 
         return RESP::integer(result);
+    
+    } else if (cmd == "LLEN") {
+        if (parts.size() != 2) {
+            return RESP::error("wrong number of arguments for 'llen'");
+        }
+
+        std::string key = parts[1];
+        bool valid_type = true;
+        int len = Store::llen(key, valid_type);
+
+        if (!valid_type) {
+            return RESP::error("WRONGTYPE Operation against a key holding the wrong kind of value");
+        }
+
+        return RESP::integer(len);
+
     } else {
         return RESP::error("unknown command");
     }

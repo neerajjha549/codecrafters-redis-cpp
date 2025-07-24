@@ -117,6 +117,24 @@ int Store::lpush(const std::string& key, const std::vector<std::string>& values)
     return list.size();
 }
 
+int Store::llen(const std::string& key, bool& valid_type) {
+    valid_type = true;
+
+    auto it = db.find(key);
+    if (it == db.end() || is_expired(it->second)) {
+        db.erase(key);
+        return 0;
+    }
+
+    if (it->second.type != ValueType::LIST) {
+        valid_type = false;
+        return 0;
+    }
+
+    const auto& list = std::get<std::deque<std::string>>(it->second.data);
+    return list.size();
+}
+
 bool Store::is_expired(const ValueEntry& entry) {
     if (!entry.has_expiry) return false;
     return std::chrono::steady_clock::now() > entry.expiry;

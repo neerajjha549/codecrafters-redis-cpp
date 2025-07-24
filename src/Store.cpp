@@ -30,26 +30,26 @@ bool Store::get(const std::string& key, std::string& value) {
     return true;
 }
 
-int Store::rpush(const std::string& key, const std::string& value) {
+int Store::rpush(const std::string& key, const std::vector<std::string>& values) {
     auto it = db.find(key);
 
     if (it == db.end() || is_expired(it->second)) {
-        // Create new list
+        // Create new list with multiple elements
         ValueEntry entry;
         entry.type = ValueType::LIST;
-        entry.data = std::vector<std::string>{ value };
+        entry.data = values;
         db[key] = entry;
-        return 1;
+        return values.size();
     }
 
     if (it->second.type != ValueType::LIST) {
-        // For this stage, we assume key does not exist already or is a list
+        // Incorrect operation if the key is not a list
         return -1;
     }
 
-    auto& vec = std::get<std::vector<std::string>>(it->second.data);
-    vec.push_back(value);
-    return vec.size();
+    auto& list = std::get<std::vector<std::string>>(it->second.data);
+    list.insert(list.end(), values.begin(), values.end());
+    return list.size();
 }
 
 bool Store::is_expired(const ValueEntry& entry) {

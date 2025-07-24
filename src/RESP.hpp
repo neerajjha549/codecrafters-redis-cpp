@@ -8,4 +8,5 @@ namespace RESP {
     std::string simple(const std::string& s);
     std::string error(const std::string& msg);
     std::string null_bulk();
+    std::string integer(int n);
 }

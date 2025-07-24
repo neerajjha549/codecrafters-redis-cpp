@@ -36,4 +36,8 @@ namespace RESP {
     std::string null_bulk() {
         return "$-1\r\n";
     }
+
+    std::string integer(int n) {
+    return ":" + std::to_string(n) + "\r\n";
+    }
 }

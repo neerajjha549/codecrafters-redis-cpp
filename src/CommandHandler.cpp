@@ -67,6 +67,21 @@ std::string CommandHandler::handle(const std::string& raw_input) {
             return RESP::null_bulk();
         }
 
+    } else if (cmd == "RPUSH") {
+    if (parts.size() != 3) {
+        return RESP::error("wrong number of arguments for 'rpush'");
+    }
+
+    std::string key = parts[1];
+    std::string value = parts[2];
+
+    int result = Store::rpush(key, value);
+    if (result == -1) {
+        return RESP::error("WRONGTYPE Operation against a key holding the wrong kind of value");
+    }
+
+    return RESP::integer(result);
+    
     } else {
         return RESP::error("unknown command");
     }

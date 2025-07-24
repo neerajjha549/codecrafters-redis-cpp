@@ -3,9 +3,6 @@
 #include <algorithm>
 #include <cctype>
 
-#include "RESP.hpp"
-#include "Store.hpp"
-
 // Convert string to uppercase (case-insensitive matching)
 std::string to_upper(const std::string &s) {
   std::string result = s;

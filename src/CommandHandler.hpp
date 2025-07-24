@@ -2,6 +2,6 @@
 #include <string>
 
 class CommandHandler {
-public:
-    static std::string handle(const std::string& raw_input);
+ public:
+  static std::string handle(const std::string& raw_input);
 };

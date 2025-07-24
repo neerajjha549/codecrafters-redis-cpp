@@ -140,24 +140,25 @@ int Store::llen(const std::string& key, bool& valid_type) {
   return list.size();
 }
 
-bool Store::lpop(const std::string& key, std::string& out) {
+bool Store::lpop(const std::string& key, int count,
+                 std::vector<std::string>& out) {
+  out.clear();
+
   auto it = db.find(key);
   if (it == db.end() || is_expired(it->second)) {
     db.erase(key);
-    return false;
+    return true;  // return empty array
   }
 
   if (it->second.type != ValueType::LIST) {
-    return false;
+    return false;  // wrong type
   }
 
   auto& list = std::get<std::deque<std::string>>(it->second.data);
-  if (list.empty()) {
-    return false;
+  while (count-- > 0 && !list.empty()) {
+    out.push_back(list.front());
+    list.pop_front();
   }
-
-  out = list.front();
-  list.pop_front();
 
   return true;
 }

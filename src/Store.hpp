@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <variant>
+#include <vector>
 
 class Store {
  public:
@@ -17,7 +18,8 @@ class Store {
   static bool lrange(const std::string& key, int start, int end,
                      std::vector<std::string>& out);
   static int llen(const std::string& key, bool& valid_type);
-  static bool lpop(const std::string& key, std::string& out);
+  static bool lpop(const std::string& key, int count,
+                   std::vector<std::string>& out);
 
  private:
   enum class ValueType { STRING, LIST };

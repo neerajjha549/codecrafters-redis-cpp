@@ -134,18 +134,37 @@ std::string CommandHandler::handle(const std::string &raw_input) {
 
     return RESP::integer(len);
   } else if (cmd == "LPOP") {
-    if (parts.size() != 2) {
+    if (parts.size() != 3) {
       return RESP::error("wrong number of arguments for 'lpop'");
     }
 
     std::string key = parts[1];
-    std::string popped;
-    bool ok = Store::lpop(key, popped);
+    int count = 1;
 
-    if (ok) {
-      return RESP::bulk(popped);  // $len\r\nvalue\r\n
+    if (parts.size() == 3) {
+      try {
+        count = std::stoi(parts[2]);
+        if (count < 0) {
+          return RESP::error("value is out of range");
+        }
+      } catch (...) {
+        return RESP::error("invalid count");
+      }
+    }
+
+    std::vector<std::string> removed;
+    bool ok = Store::lpop(key, count, removed);
+
+    if (!ok) {
+      return RESP::error(
+          "WRONGTYPE Operation against a key holding the wrong kind of value");
+    }
+
+    if (parts.size() == 3) {
+      return RESP::array(removed);  // RESP array for multiple pop
     } else {
-      return RESP::null_bulk();  // $-1\r\n
+      return removed.empty() ? RESP::null_bulk()
+                             : RESP::bulk(removed[0]);  // Bulk string or null
     }
   } else {
     return RESP::error("unknown command");
